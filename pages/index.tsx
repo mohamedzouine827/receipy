@@ -2,14 +2,17 @@ import { Inter } from "next/font/google";
 import Logo from "@/pages/components/main/Logo";
 import Trends from "@/pages/components/main/Trends";
 
-import { useRef, useState} from "react";
 import GlobalTrends from "@/pages/components/GlobalTrends";
+import NewReceipt from "@/pages/components/main/NewReceipt";
+
+import fs from 'fs';
+
+// every Refresh a receipt
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const textRef = useRef<HTMLInputElement>(null); // Ref type declaration
+
 
     const Alphabet = ["a", "b", "c", "d", "f", "e", "f", "g", "h", "i", "j", "k", "l"
     , "m", "n", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
@@ -17,27 +20,28 @@ export default function Home() {
     function RandomFile () {
         const path = "recipes/index/"
         let alphabet =  Math.floor(Math.random()*Alphabet.length)
-        const FilePath = path + alphabet
+        const FilePath = path + Alphabet[alphabet]
         let RandomFileReceipt = Math.floor(Math.random()*FilePath.length)
-        console.log(Alphabet[alphabet])
         console.log(FilePath)
+        fs.readdir(FilePath, (err: any, files: any) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * files.length);
+            const randomFile = files[randomIndex];
+            console.log(randomFile);
+        })
     }
-    const handleSelectedCategory = () => {
-        const category = textRef.current?.value; // Access input value from ref
-        if (category) {
-            setSelectedCategories(prevState => [...prevState, category]);
-            textRef.current.value = ""; // Clear input value
-        }
-    };
+
+
 
     return (
         <div className="mx-5 mt-6">
             <Logo/>
-            <Trends title="Trends"/>
-            {selectedCategories.map((category: string, index: number) => (
-                <GlobalTrends key={index} stateVariable={category}/>
-            ))}
-            <button className="border-2 border-black" onClick={RandomFile}>click me</button>
+            <Trends title="Ingredients"/>
+            <GlobalTrends stateVariable="Description" />
+            <NewReceipt RandomFile={RandomFile}/>
         </div>
     );
 }
